@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     [SerializeField] private LayerMask platformLayerMask;
     private Rigidbody2D rb;
@@ -23,6 +24,11 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         playerControls = new PlayerControls();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (!IsOwner) Destroy(this);
     }
 
     private void Start()
@@ -63,7 +69,7 @@ public class PlayerController : MonoBehaviour
         moveDirectoin = move.ReadValue<Vector2>();
         if (IsGrounded())
         {
-            jumpsLeft = 2;
+            jumpsLeft = 1;
             if (rb.gravityScale != 1f)
             {
                 rb.gravityScale = 1f;
@@ -100,27 +106,6 @@ public class PlayerController : MonoBehaviour
             rb.gravityScale = 20f;
         }
     }
-
-    /*private void OnCollisionEnter2D(Collision2D other)
-    {
-        if (other.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-            jumpsLeft = 2;
-            if(rb.gravityScale != 1f)
-            {
-                rb.gravityScale = 1f;
-            };
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D other)
-    {
-        if (other.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = false;
-        }
-    }*/
 
     private bool IsGrounded()
     {
